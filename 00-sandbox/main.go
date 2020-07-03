@@ -1,10 +1,6 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
+import "fmt"
 
 func main() {
 	const name, age = "Kim", 22
@@ -17,15 +13,17 @@ func main() {
 	// }
 	// fmt.Printf("%d bytes written.\n", n)
 
-	file, _ := os.Create("file.txt")
-	w := bufio.NewWriter(file)
+	//file, _ := os.Create("file.txt")
+	//w := bufio.NewWriter(file)
 
-	n, err := fmt.Fprintf(w, "%s is %d years old.\n", name, age)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fprintf: %v\n", err)
-	}
-	fmt.Printf("%d bytes written.\n", n)
+	//n, err := fmt.Fprintf(w, "%s is %d years old.\n", name, age)
+	//if err != nil {
+	//fmt.Fprintf(os.Stderr, "Fprintf: %v\n", err)
+	//}
+	//fmt.Printf("%d bytes written.\n", n)
 
-	w.Flush()
+	//w.Flush()
+
+	fmt.Printf("Test%d\n")
 
 }
