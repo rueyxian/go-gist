@@ -21,6 +21,8 @@ func main() {
 	var favLang string
 	flag.StringVar(&favLang, "favLang", "Go", "favourite language")
 
+	flag.Parse()
+
 	fmt.Println("greeting: ", *greeting)
 	fmt.Println("counter: ", *counter)
 	fmt.Println("favLang: ", favLang)
