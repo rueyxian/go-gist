@@ -8,18 +8,19 @@ import (
 )
 
 var startTime time.Time
+var random *rand.Rand
 
 func init() {
 	startTime = time.Now()
+	random = rand.New(rand.NewSource(startTime.UnixNano()))
 }
 
 func process(i int, wg *sync.WaitGroup) {
 	fmt.Printf("process %2d  start  %v \n", i, time.Since(startTime))
-	time.Sleep(time.Duration(rand.Intn(4000)) * time.Millisecond)
+	time.Sleep(time.Duration(random.Intn(4000)) * time.Millisecond)
 	fmt.Printf("process %2d    end  %v \n", i, time.Since(startTime))
 
 	wg.Done() // wg counter -1, wg.Add(-1) works too
-
 }
 
 func main() {

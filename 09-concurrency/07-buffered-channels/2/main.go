@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -9,7 +10,7 @@ import (
 func getData(n int, ch chan int) {
 	for i := 0; i < n; i++ {
 		ch <- i
-		lenS := strings.Repeat("▐", len(ch))
+		lenS := strings.Repeat("•", len(ch))
 		fmt.Printf("   send: %2v  len: %v \n", i, lenS)
 
 		// padding := strings.Repeat(".", (i+1)*2)
@@ -22,7 +23,6 @@ func main() {
 
 	runtime.NumGoroutine()
 
-
 	// rand.Seed(time.Now().UnixNano())
 	bufCap := 2
 	num := 5
@@ -31,7 +31,7 @@ func main() {
 	go getData(num, ch)
 
 	for v := range ch {
-		lenS := strings.Repeat("▐", len(ch))
+		lenS := strings.Repeat("•", len(ch))
 		fmt.Printf("receive: %2v  len: %v \n", v, lenS)
 
 		// padding := strings.Repeat(".", (v+1)*2)

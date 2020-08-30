@@ -33,7 +33,6 @@ func main() {
 
 	// But if you really want to do polling, for loop is required. Declare time channel outside
 
-	pollInt := time.Millisecond
 	timeout := time.After(1000 * time.Millisecond)
 
 	for {
@@ -50,7 +49,7 @@ func main() {
 		default:
 		}
 		fmt.Printf("waiting for response \t time: %v \n", time.Since(startTime))
-		time.Sleep(200 * pollInt)
+		time.Sleep(200 * time.Millisecond)
 	}
 
 }

@@ -7,7 +7,7 @@ func main() {
 	if a == nil {
 		fmt.Println("channel a is nil, going to define it")
 		a = make(chan int)
-		fmt.Printf("Type of a is %T", a)
+		fmt.Printf("Type of a is %T\n", a)
 	}
 
 	data1 := 4896

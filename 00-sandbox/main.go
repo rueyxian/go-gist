@@ -3,27 +3,14 @@ package main
 import "fmt"
 
 func main() {
-	const name, age = "Kim", 22
-	// n, err := fmt.Fprintf(os.Stdout, "%s is %d years old.\n", name, age)
 
-	// // The n and err return values from Fprintf are
-	// // those returned by the underlying io.Writer.
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Fprintf: %v\n", err)
-	// }
-	// fmt.Printf("%d bytes written.\n", n)
+	ns := []int{1, 2, 4, 5, 7}
+	operation(ns...)
 
-	//file, _ := os.Create("file.txt")
-	//w := bufio.NewWriter(file)
+}
 
-	//n, err := fmt.Fprintf(w, "%s is %d years old.\n", name, age)
-	//if err != nil {
-	//fmt.Fprintf(os.Stderr, "Fprintf: %v\n", err)
-	//}
-	//fmt.Printf("%d bytes written.\n", n)
-
-	//w.Flush()
-
-	fmt.Printf("Test%d\n")
-
+func operation(nums ...int) {
+	for num := range nums {
+		fmt.Println(num)
+	}
 }

@@ -32,8 +32,11 @@ func main() {
 	go server2(ch2)
 
 	// GOTCHA!! timeout case never get executed.
-	// - because on every iteration, the time channel gets created before it really exceeds the timeout.
-	// - select statement has already doing the job of checking channel's sending/receiving timeout. Turning asynchronous into a busy loop not only gaining nothing and also wasting resources.
+	// - because on every iteration, the time channel gets created again and again
+	//   before it really exceeds the timeout.
+	// - select statement has already doing the job of checking channel's
+	//   sending/receiving timeout. Turning asynchronous into a busy loop
+	//   not only gaining nothing and also wasting resources.
 
 	for {
 		select {

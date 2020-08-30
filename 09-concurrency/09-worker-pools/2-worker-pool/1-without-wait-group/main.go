@@ -12,39 +12,39 @@ func main() {
 	workerCount := 2
 	taskCount := 5
 
-	tasks := make(chan string, taskCount)
-	results := make(chan string, taskCount)
+	chTasks := make(chan string, taskCount)
+	chResults := make(chan string, taskCount)
 
 	// spawning worker goroutines, those goroutines doing:
 	// 1 - receiving tasks
 	// 2 - process tasks and produce results
 	// 3 - sending results
 	for i := 0; i < workerCount; i++ {
-		go worker(i, tasks, results)
+		go worker(i, chTasks, chResults)
 	}
 
 	//sending tasks
 	for i := 0; i < taskCount; i++ {
 		task := string(i + 65)
 		fmt.Printf("[main    ]   task   sending: %v \n", task)
-		tasks <- task
+		chTasks <- task
 	}
-	close(tasks)
+	close(chTasks)
 
 	//receiving results
 	for i := 0; i < taskCount; i++ {
-		result := <-results
+		result := <-chResults
 		fmt.Printf("[main    ] result receiving: %v \n", result)
 	}
 
 }
 
-func worker(i int, tasks chan string, results chan string) {
-	for task := range tasks {
+func worker(i int, chTasks chan string, chResults chan string) {
+	for task := range chTasks {
 		fmt.Printf("[worker %v]   task receiving: %v \n", i, task)
 		result := process(task)
 		fmt.Printf("[worker %v] result   sending: %v \n", i, result)
-		results <- result
+		chResults <- result
 	}
 }
 

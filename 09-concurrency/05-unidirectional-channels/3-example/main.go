@@ -20,8 +20,8 @@ func main() {
 	go sendData(ch1)
 	go sendAgain(ch2, ch1)
 
-	// fmt.Printf("ch1: %v ", <-ch1) // this will run into panic coz the data have been passed to ch1
+	// fmt.Printf("ch1: %v ", <-ch1) // this will run into panic coz the data have been received at other goroutine
 
-	fmt.Printf("ch2: %v ", <-ch2)
+	fmt.Printf("ch2: %v \n", <-ch2)
 
 }

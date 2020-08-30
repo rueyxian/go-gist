@@ -5,22 +5,14 @@ import (
 	"math/rand"
 )
 
-func sendData(ch chan<- int, done chan struct{}) {
+func sendData(ch chan<- int) {
 	ch <- rand.Intn(99)
 	fmt.Printf("sendData goroutine \t type: %T \n", ch)
-	done <- struct{}{}
 }
 
 func main() {
 	ch := make(chan int)
-	done := make(chan struct{})
-
-	go sendData(ch, done)
-
+	go sendData(ch)
 	fmt.Printf("main goroutine \t type: %T \n", ch)
-	<-done
-
 	fmt.Println(<-ch)
-
-
 }

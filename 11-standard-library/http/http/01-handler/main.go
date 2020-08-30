@@ -12,7 +12,7 @@ type Handler interface{
 }
 */
 
-type simplehandler struct{}
+type simpleHandler struct{}
 
 func (h *simpleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "this is simpleHandler : %s", r.URL.Path)

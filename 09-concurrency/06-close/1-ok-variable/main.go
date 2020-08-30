@@ -8,7 +8,8 @@ import (
 
 func randomSet(ch chan int) {
 
-	for _, v := range rand.Perm(10) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for _, v := range r.Perm(10) {
 		fmt.Printf("other goroutine: \t send: %v \n", v)
 		ch <- v
 	}
@@ -16,7 +17,6 @@ func randomSet(ch chan int) {
 	close(ch)
 }
 func main() {
-	rand.Seed(time.Now().UnixNano())
 
 	ch := make(chan int)
 	go randomSet(ch)

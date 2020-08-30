@@ -16,7 +16,9 @@ func main() {
 	go mario()
 	go luigi()
 
-	// other goroutines will get executed, but after that main goroutine will stucks inside the select statement - deadlock.
+	// other goroutines will get executed, but after
+	// that main goroutine will stucks inside
+	// the select statement - deadlock.
 	select {}
 
 	fmt.Println("main: end")

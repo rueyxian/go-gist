@@ -11,8 +11,6 @@ func printNNumber(n int, c chan int) {
 	}
 }
 
-
-
 func main() {
 
 	n := 2
