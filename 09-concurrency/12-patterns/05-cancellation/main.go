@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"math/rand"
 	"runtime"
-	"strconv"
-	"sync/atomic"
 	"time"
 )
 
-var rnd *rand.Rand
-
 func init() {
-	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+	rand.Seed(time.Now().UTC().UnixNano())
 	runtime.GOMAXPROCS(0)
 }
 
 func main() {
-	cancellation_base()
+
+	// cancellation()
+	cancellation_bug()
+	fmt.Println("num of goroutine:", runtime.NumGoroutine())
+
 }
 
 func whitespace(n int) string {
@@ -31,15 +31,16 @@ func whitespace(n int) string {
 
 // ================================================================================
 
-func cancellation_base() {
+func cancellation() {
 	duration := 150 * time.Millisecond
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 
+	// unbuffered channel instead of buffered
 	ch := make(chan string, 1)
 
 	go func() {
-		time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+		time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
 		ch <- "paper"
 	}()
 
@@ -57,45 +58,29 @@ func cancellation_base() {
 
 // ================================================================================
 
-func cancellation() {
+func cancellation_bug() {
+	duration := 150 * time.Millisecond
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	defer cancel()
 
-	const works = 5000
-	var cSend int64
-	var cRecv int64
-	grs := runtime.NumCPU()
+	// if the channel is unbuffered, and if <-ctx.Done() is signal before d := <-ch,
+	// it will moves on, but the other goroutine is blocked since there is no
+	// longer a receiver for it, now we have goroutine leak.
 	ch := make(chan string)
-	// ====================
-	for g := 0; g < grs; g++ {
-		worker := g
-		go func() {
-			padding := whitespace(len(strconv.Itoa(grs)) - len(strconv.Itoa(g)))
-			for task := range ch {
-				atomic.AddInt64(&cRecv, 1)
-				fmt.Printf("worker_%d%s [recv]   data: %v\n", worker, padding, task)
-			}
-			fmt.Printf("worker_%d%s [kill]   \n", worker, padding)
-		}()
+
+	go func() {
+		time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
+		ch <- "paper"
+	}()
+
+	select {
+	case d := <-ch:
+		fmt.Println("work complete", d)
+
+	case <-ctx.Done():
+		fmt.Println("work cancelled")
 	}
 
-	// ====================
-	padding := whitespace(len(strconv.Itoa(grs)))
-
-	for w := 0; w < works; w++ {
-		task := fmt.Sprintf("task_%v", w)
-		ch <- task
-		atomic.AddInt64(&cSend, 1)
-		fmt.Printf("manager %s[send]   data: %v\n", padding, task)
-		// fmt.Printf("manager %s[send]   data: %v   duration: %v\n", padding, task, duration)
-	}
-	close(ch)
-	fmt.Printf("manager %s[kill]   \n", padding)
-
-	// ====================
-	// time.Sleep(time.Millisecond * time.Duration(200))
-	fmt.Printf(
-		`------------------------------
-send count: %d
-recv count: %d
-==============================
-`, cSend, cRecv)
+	time.Sleep(time.Second)
+	fmt.Println("-------------------------------------------------------------")
 }

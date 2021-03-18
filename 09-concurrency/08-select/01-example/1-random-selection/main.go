@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -21,8 +22,12 @@ func server2(ch chan string) {
 
 func main() {
 
-	ch1 := make(chan string)
-	ch2 := make(chan string)
+	// the reason of making both ch1 and ch2 to be buffered channel of one
+	// is because if either one signal first, another one won't be block
+	// at it's goroutine, causing memory leak
+	ch1 := make(chan string, 1)
+	ch2 := make(chan string, 1)
+
 	go server1(ch1)
 	go server2(ch2)
 
@@ -34,4 +39,8 @@ func main() {
 	case res := <-ch2:
 		fmt.Printf("response: %v \t time: %v \n", res, time.Since(startTime))
 	}
+
+	time.Sleep(50 * time.Millisecond)
+	fmt.Println("num of goroutine:", runtime.NumGoroutine())
+
 }
