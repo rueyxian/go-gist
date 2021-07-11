@@ -16,6 +16,7 @@ func randomSet(ch chan int) {
 
 	close(ch)
 }
+
 func main() {
 
 	ch := make(chan int)

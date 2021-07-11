@@ -1,170 +1,79 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"math/rand"
-	"runtime"
-	"strconv"
-	"time"
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/schema"
 )
 
-var rnd *rand.Rand
-
-func init() {
-	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+type Person struct {
+	Name  string
+	Level int
 }
 
-func whitespace(n int) string {
-	ret := ""
-	for i := 0; i < n; i++ {
-		ret += " "
-	}
-	return ret
-}
+// ================================================================================
+
+// func newRouter() *mux.Router {
+//   r := mux.NewRouter()
+//   r.HandleFunc("/hello", handler).Methods("POST")
+//   return r
+// }
 
 func main() {
-	// test()
-	test0()
-	// test1()
-	// test2()
-	// test3()
-}
 
-func test() {
+	// mux := http.NewServeMux()
+	// mux.HandleFunc("/hello", helloHandler)
 
-	grs := 1
-	_ = grs
-	// ch := make(chan string)
-	ch := make(chan string, grs)
+	// http.ListenAndServe(":8080", mux)
 
-	fmt.Println(<-ch)
-	ch <- "1"
-}
+	// ==============================
 
-func test0() {
-	grs := 10
-	// ch := make(chan string)
-	ch := make(chan string, grs)
-	// sem := make(chan struct{}, runtime.NumCPU())
-	sem := make(chan struct{}, 2)
+	r := mux.NewRouter()
+	r.HandleFunc("/hello", helloHandler).Methods("POST")
+	r.HandleFunc("/bye", byeHandler).Methods("GET")
+	r.HandleFunc("/login", loginHandler).Methods("POST")
 
-	for g := 0; g < grs; g++ {
-		go func(idx int) {
-			sem <- struct{}{}
-			{
-				duration := time.Duration(rnd.Intn(1000)) * time.Millisecond
-				time.Sleep(duration)
+	http.ListenAndServe(":8080", r)
 
-				ch <- fmt.Sprintf("result_%v", idx)
-				padding := whitespace(len(strconv.Itoa(grs)) - len(strconv.Itoa(idx)))
-				fmt.Printf("worker_%d%s [send]   duration: %v\n", idx, padding, duration)
-			}
-			<-sem
-		}(g)
-	}
-	time.Sleep(time.Second * time.Duration(5))
-	fmt.Println("========== start receiving ==========")
-
-	padding := whitespace(len(strconv.Itoa(grs)))
-	for i := 0; i < grs; i++ {
-		result := <-ch
-		fmt.Printf("manager%s [recv]   data: %v\n", padding, result)
-	}
-
-	// time.Sleep(time.Second * time.Duration(5))
-	// go func() {
-	//   fmt.Println(<-ch)
-	// }()
-
-	// ch <- "1"
-	// ch <- "2"
-
-	// fmt.Println(<-ch)
+	// ==============================
 
 }
 
-func test1() {
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	var err error
+	var p Person
 
-	grs := 4
-	ch := make(chan string, grs)
-
-	for g := 0; g < grs; g++ {
-		go func() {
-
-			duration := time.Duration(rnd.Intn(1000)) * time.Millisecond
-			time.Sleep(duration)
-			data := fmt.Sprintf("data: %2d   duration: %v", g, duration)
-			ch <- data
-		}()
+	err = json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(<-ch)
-	fmt.Println(<-ch)
-	fmt.Println(<-ch)
-	fmt.Println(<-ch)
-	// fmt.Println(<-ch)
-	fmt.Println("========================================")
+	fmt.Fprintf(w, "Hello : %v", p)
 }
 
-func test2() {
+func byeHandler(w http.ResponseWriter, r *http.Request) {
+	var err error
+	var p Person
 
-	grs := runtime.NumCPU()
-	// ch := make(chan string, grs)
-	ch := make(chan string)
-
-	for g := 0; g < grs; g++ {
-		go func(idx int) {
-
-			// duration := time.Duration(rnd.Intn(1000)) * time.Millisecond
-			// time.Sleep(duration)
-			// data := fmt.Sprintf("data: %2d   duration: %v", g, duration)
-			// ch <- data
-
-			for p := range ch {
-				fmt.Printf("[recv_%d]   data: %v\n", idx, p)
-			}
-		}(g)
+	err = schema.NewDecoder().Decode(&p, r.URL.Query())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	works := 4
-	for w := 0; w < works; w++ {
-		ch <- strconv.Itoa(w)
-		fmt.Printf("[send]   data: %v\n", w)
-	}
-
-	time.Sleep(time.Second * time.Duration(4))
-	fmt.Println("========================================")
+	fmt.Fprintf(w, "Bye : %v ", p)
 }
 
-func test3() {
-
-	grs := runtime.NumCPU()
-	ch := make(chan string, grs)
-	// ch := make(chan string)
-
-	for g := 0; g < grs; g++ {
-		go func(idx int) {
-
-			for p := range ch {
-
-				duration := time.Duration(rnd.Intn(1000)) * time.Millisecond
-				time.Sleep(duration)
-				// time.Sleep(time.Second)
-				fmt.Printf("[recv_%d]   data: %v   duration: %v\n", idx, p, duration)
-			}
-		}(g)
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	// var err error
+	// h := r.Header.Get("x-auth-token")
+	if r.Header.Get("x-auth-token") == "12345" {
+		fmt.Fprintf(w, "login")
+	} else {
+		http.Error(w, "%v", http.StatusNonAuthoritativeInfo)
+		return
 	}
 
-	works := 8
-	for w := 0; w < works; w++ {
-		go func(wrk int) {
-			duration := time.Duration(rnd.Intn(1000)) * time.Millisecond
-			time.Sleep(duration)
-			ch <- strconv.Itoa(wrk)
-			fmt.Printf("[send]   data: %v   duration: %v\n", wrk, duration)
-		}(w)
-	}
-
-	time.Sleep(time.Second * time.Duration(4))
-	fmt.Println("========================================")
 }
