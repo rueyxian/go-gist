@@ -1,4 +1,4 @@
-module go-jottings
+module go-gist
 
 go 1.16
 
