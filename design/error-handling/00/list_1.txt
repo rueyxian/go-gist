@@ -1,5 +1,0 @@
-id,name,price
-int,string,float64
-1,mug,14.56
-2,blueberry,20.42
-3,green tea,12,80
